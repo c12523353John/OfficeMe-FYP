@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/searches_menu"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/spaceViewings"
+            android:checked="false"
+            android:icon="@drawable/ic_attach_money_black_36dp"
+            android:title="Viewing Info" />
+
+        <item
+            android:id="@+id/listSpace"
+            android:checked="false"
+            android:icon="@drawable/ic_desktop_mac_black_36dp"
+            android:title="@string/listSpace_string" />
+
+
+    </group>
+
+    <group
+        android:id="@+id/settings_menu"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/settings"
+            android:checked="false"
+            android:icon="@drawable/ic_error_black_36dp"
+            android:title="@string/settings_string" />
+
+
+        <item
+            android:id="@+id/idSwitchToVisitor"
+            android:visible="true"
+            android:icon="@drawable/ic_assignment_ind_black_36dp"
+            android:title="@string/switchToVisitor" />
+
+        <item
+            android:id="@+id/idHostingLogOut"
+            android:visible="true"
+            android:icon="@drawable/ic_assignment_ind_black_36dp"
+            android:title="Log Out" />
+
+
+    </group>
+</menu>

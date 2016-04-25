@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/navMenu"
+    android:choiceMode="none">
+
+    <group
+        android:id="@+id/searches_menu"
+        android:checkableBehavior="none"
+        android:choiceMode="none">
+
+        <item
+            android:id="@+id/savedAds"
+            android:checked="false"
+            android:icon="@drawable/ic_star_black_36dp"
+            android:title="@string/savedAds_string" />
+
+
+        </group>
+
+
+        <group
+            android:id="@+id/space_menu"
+            android:checkableBehavior="single">
+
+            <item
+                android:id="@+id/howItWorks"
+                android:checked="false"
+                android:icon="@drawable/ic_announcement_black_36dp"
+                android:title="@string/howItWorks_string" />
+
+
+
+            <item
+                android:id="@+id/latestNews"
+                android:icon="@drawable/ic_announcement_black_36dp"
+                android:title="@string/latestNews_string" />
+
+            </group>
+
+
+        <group
+            android:id="@+id/communication_menu"
+            android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/bookings"
+            android:checked="false"
+            android:icon="@drawable/ic_today_black_36dp"
+            android:title="@string/bookings_string" />
+
+    </group>
+
+    <group
+        android:id="@+id/settings_menu"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/settings"
+            android:checked="false"
+            android:icon="@drawable/ic_error_black_36dp"
+            android:title="@string/settings_string" />
+
+        <item
+            android:id="@+id/LogInSignUp"
+            android:checked="false"
+            android:visible="true"
+            android:icon="@drawable/ic_assignment_ind_black_36dp"
+            android:title="@string/logInSignUp_string" />
+
+
+        <item
+            android:id="@+id/idSwitchToHosting"
+            android:checked="false"
+            android:visible="true"
+            android:icon="@drawable/ic_assignment_ind_black_36dp"
+            android:title="@string/switchToHosting" />
+
+
+
+    </group>
+</menu>

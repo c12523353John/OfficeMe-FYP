@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="1dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="1dp"
+            android:id="@+id/listSpaceMainImage"
+            android:background="@drawable/clicktoaddimages"
+            android:minHeight="200dp"
+            android:contentDescription="@string/addPhotosHolder" />
+
+        <LinearLayout android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
+            android:paddingTop="1dp"
+            android:id="@+id/linearLayoutSmallImages"
+            android:layout_below="@id/listSpaceMainImage">
+
+            <ImageView android:id="@+id/listSpaceSmallImg1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingRight="1dp"
+                android:scaleType="fitXY"
+                android:layout_weight="1"
+                android:src="@drawable/clicktoaddimages"
+                android:adjustViewBounds="true"/>
+
+            <ImageView android:src="@drawable/clicktoaddimages"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:paddingRight="1dp"
+                android:scaleType="fitXY"
+                android:layout_weight="1"
+                android:id="@+id/listSpaceSmallImg2"
+                android:adjustViewBounds="true"></ImageView>
+
+            <ImageView android:src="@drawable/clicktoaddimages"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:paddingRight="1dp"
+                android:scaleType="fitXY"
+                android:layout_weight="1"
+                android:id="@+id/listSpaceSmallImg3"
+                android:adjustViewBounds="true"></ImageView>
+
+            <ImageView android:src="@drawable/clicktoaddimages"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:scaleType="fitXY"
+                android:layout_weight="1"
+                android:id="@+id/listSpaceSmallImg4"
+                android:adjustViewBounds="true"></ImageView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:id="@+id/linearLayoutBorderTitle1"
+            android:layout_below="@+id/linearLayoutSmallImages">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/lineGrey3"
+                android:background="@android:color/darker_gray"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="15dp"
+                android:layout_marginTop="15dp"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:gravity="center_horizontal"
+                android:text="Listing Details"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/lineGrey"
+                android:background="@android:color/darker_gray"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/linLayAddDetails"
+            android:orientation="vertical"
+            android:layout_below="@+id/linearLayoutBorderTitle1"
+            android:padding="15dp">
+
+
+            <EditText
+                android:id="@+id/etAddListingTitle"
+                android:layout_below="@id/linLayAddDetails"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:hint="Add Title"
+                android:textColorHint="#bbbbbb"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <EditText
+                android:id="@+id/etAddListingDescription"
+                android:layout_below="@id/etAddListingTitle"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:layout_marginTop="10dp"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:hint="Add Description"
+                android:textColorHint="#bbbbbb" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_default_small">
+
+
+                <Spinner
+                    android:id="@+id/addListingSpinner"
+                    android:layout_width="match_parent"
+                    android:spinnerMode="dialog"
+                    android:layout_height="50dp"
+                    android:padding="10dp"/>
+                    <!--android:layout_marginTop="10dp"-->
+                    <!--android:prompt="@string/chooseDeskType"-->
+                    <!--android:entries="@array/deskTypeArray"-->
+            </RelativeLayout>
+
+            <EditText
+                android:id="@+id/etAddListingNoOfDesks"
+                android:layout_below="@id/addListingSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:inputType="number"
+                android:maxLength="2"
+                android:hint="Desks Available"
+                android:textColorHint="#bbbbbb"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <EditText
+                android:id="@+id/etAddListingPricePerMonth"
+                android:layout_below="@id/etAddListingNoOfDesks"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:inputType="numberDecimal"
+                android:hint="€ per desk per month"
+                android:textColorHint="#bbbbbb"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/linearLayoutBorderTitle2"
+            android:layout_below="@+id/linLayAddDetails">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/lineGrey4"
+                android:background="@android:color/darker_gray"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="15dp"
+                android:layout_marginTop="15dp"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:gravity="center_horizontal"
+                android:text="Address Details"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/lineGrey5"
+                android:background="@android:color/darker_gray"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:id="@+id/linearLayoutAddAddressDetails"
+            android:layout_below="@+id/linearLayoutBorderTitle2"
+            android:padding="15dp">
+
+
+        <EditText
+            android:id="@+id/etAddListingStreet1"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/edittext_default_small"
+            android:padding="10dp"
+            android:hint="Street 1"
+            android:textColorHint="#bbbbbb"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+            <EditText
+                android:id="@+id/etAddListingStreet2"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:hint="Street 2"
+                android:textColorHint="#bbbbbb"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <EditText
+                android:id="@+id/etAddListingCity"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:hint="City"
+                android:textColorHint="#bbbbbb"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <EditText
+                android:id="@+id/etAddListingCounty"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:hint="County"
+                android:textColorHint="#bbbbbb"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <EditText
+                android:id="@+id/etAddListingCountry"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_default_small"
+                android:padding="10dp"
+                android:hint="Country"
+                android:textColorHint="#bbbbbb"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <Button
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnAddListing"
+                android:padding="5dp"
+                android:background="#bbbbbb"
+                android:text="Add Listing"
+                android:textAllCaps="false"
+                android:textColor="#fff"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp"/>
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</ScrollView>

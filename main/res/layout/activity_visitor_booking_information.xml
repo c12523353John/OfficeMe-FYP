@@ -1,0 +1,121 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        >
+
+        <TabHost
+            android:id="@+id/tabVisitorViewings"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <!--android:layout_centerHorizontal="true">-->
+
+            <!--<LinearLayout-->
+            <!--android:orientation="vertical"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--android:padding="5dp">-->
+
+            <RelativeLayout
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent">
+
+                <TabWidget
+                    android:id="@android:id/tabs"
+                    android:layout_alignParentBottom="true"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/hostingPrimary"
+                    android:layout_marginBottom="0.5dp"/>
+
+                <FrameLayout
+                    android:id="@android:id/tabcontent"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent">
+
+                    <LinearLayout
+                        android:id="@+id/tab1VisitorViewing"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_marginBottom="50dp"
+                        android:orientation="vertical">
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:id="@+id/lineGrey3"
+                            android:background="@android:color/darker_gray"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:textStyle="bold"
+                            android:textSize="20dp"
+                            android:gravity="center"
+                            android:background="#fafafa"
+                            android:text="Viewing Requests Made"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:id="@+id/lineGrey"
+                            android:background="@android:color/darker_gray"/>
+
+                        <ListView
+                            android:id="@+id/myVisitorViewingRequests"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"></ListView>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/tab2VisitorViewing"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_marginBottom="50dp"
+                        android:orientation="vertical">
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:id="@+id/lineGrey34"
+                            android:background="@android:color/darker_gray"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:textStyle="bold"
+                            android:textSize="20dp"
+                            android:gravity="center"
+                            android:background="#fafafa"
+                            android:text="Confirmed Viewings"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:id="@+id/lineGrey32"
+                            android:background="@android:color/darker_gray"/>
+
+                        <ListView
+                            android:id="@+id/myVisitorConfirmedViewings"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"></ListView>
+
+                    </LinearLayout>
+
+                    <!--<LinearLayout-->
+                    <!--android:id="@+id/tab4Hosting"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginBottom="50dp"-->
+                    <!--android:background="#632A7B"-->
+                    <!--android:orientation="vertical" />-->
+
+
+                </FrameLayout>
+
+            </RelativeLayout>
+            <!--</LinearLayout>-->
+        </TabHost>
+    </LinearLayout>

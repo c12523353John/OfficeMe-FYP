@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">OfficeMe</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_login_register">Sign in</string>
+    <string name="title_activity_login">Login</string>
+    <string name="savedSearches_string">Saved Searches</string>
+    <string name="starred_string">Starred</string>
+    <string name="sent_mail_string">Sent</string>
+    <string name="howItWorks_string">How it Works</string>
+    <string name="all_mail_string">All Mail</string>
+    <string name="trash_string">Trash</string>
+    <string name="spam_string">Spam</string>
+    <string name="action_menu">Menu</string>
+    <string name="savedAds_string">Saved Ads</string>
+    <string name="listSpace_string">List Space</string>
+    <string name="spaceWorth_string">What\'s My Space Worth?</string>
+    <string name="draft_string">Drafts</string>
+    <string name="messages_string">Messages</string>
+    <string name="bookings_string">Bookings</string>
+    <string name="settings_string">Settings</string>
+    <string name="logInSignUp_string">Log In or Sign Up</string>
+    <string name="myListings_string">My Listings</string>
+    <string name="title_activity_how_it_works">HowItWorks</string>
+    <string name="action_favorite">Favourite</string>
+    <string name="drawerToggle_string">Nav</string>
+    <string name="title_activity_parse">ParseActivity</string>
+    <string name="title_activity_webViewParse">Latest News</string>
+    <string name="latestNews_string">Latest Tech News</string>
+    <string name="silicon_news">Latest Tech News</string>
+    <string name="switchToHosting">Switch To Hosting</string>
+    <string name="switchToVisitor">Switch to Visiting</string>
+    <string name="addPhotosHolder">addPhotosHolder</string>
+    <string name="chooseDeskType">Choose Desk Type</string>
+    <string-array name="deskTypeArray">
+        <item><font colour="##bbbbbb"/> Dedicated Desk</item>
+        <item>Hot Desk</item>
+        <item>Private Office</item>
+        <item></item>
+    </string-array>
+    <string name="title_activity_detailed_listing">Detailed Listing</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_viewing_information">Viewing Information</string>
+    <string name="title_activity_detailed_booking_request">DetailedBookingRequest</string>
+    <string name="search_title">Search</string>
+
+</resources>
