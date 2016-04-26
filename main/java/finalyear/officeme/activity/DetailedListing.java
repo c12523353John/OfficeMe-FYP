@@ -436,7 +436,6 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
         List<android.location.Address> list = null;
 
         try {
-//            Log.d("AString", addressString+"");
             if(addressString != null) {
                 list = gc.getFromLocationName(addressString, 1);
 
@@ -454,8 +453,6 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        //Dogpatch Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(53.3493099, -6.2497026)));
     }
 
     public int getListingID() {
@@ -593,5 +590,11 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
             favBtn.setTag(R.drawable.detailedfavred);
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(DetailedListing.this, MainActivity.class);
+        startActivity(setIntent);
     }
 }

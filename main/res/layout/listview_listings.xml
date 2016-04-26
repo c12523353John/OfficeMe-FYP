@@ -29,17 +29,6 @@
             android:id="@+id/listImgPrice" />
 
 
-        <!--<Button-->
-            <!--android:layout_width="35dp"-->
-            <!--android:layout_height="35dp"-->
-            <!--android:layout_marginRight="15dp"-->
-            <!--android:layout_marginTop="10dp"-->
-            <!--android:background="@drawable/ic_favorite_border_white_36dp"-->
-            <!--android:id="@+id/listImgFavouriteButton"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--android:focusable="false"-->
-            <!--android:focusableInTouchMode="false"/>-->
         </RelativeLayout>
 
 
@@ -143,30 +132,6 @@
 
 
         </LinearLayout>
-
-        <!--<LinearLayout-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="horizontal"-->
-            <!--android:id="@+id/linearLayList2">-->
-
-
-            <!--<RatingBar-->
-                <!--android:id="@+id/listImgAverageRating"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--style="?android:attr/ratingBarStyleSmall"-->
-                <!--android:layout_height="50dp"-->
-                <!--android:layout_marginTop="5dp"-->
-                <!--android:isIndicator="true"-->
-                <!--android:textColor="@color/hostingPrimary"-->
-                <!--android:gravity="center_horizontal"-->
-                <!--android:numStars="5"-->
-                <!--android:rating="5"-->
-                <!--android:layout_marginLeft="70dp"-->
-                <!--android:stepSize="0.5"/>-->
-
-
-        <!--</LinearLayout>-->
 
 
         <View

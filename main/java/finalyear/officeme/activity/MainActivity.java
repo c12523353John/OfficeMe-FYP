@@ -5,6 +5,9 @@ package finalyear.officeme.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -22,15 +25,31 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import finalyear.officeme.Login;
+import finalyear.officeme.MarkerListing;
 import finalyear.officeme.R;
 import finalyear.officeme.Singletons.AddressSingleton;
 import finalyear.officeme.Singletons.DeskTypeSingleton;
@@ -47,7 +66,7 @@ import finalyear.officeme.model.User;
 import finalyear.officeme.parse.ParseActivity;
 //extends AppCompatActivity
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     Button loginActivityButton;
     private NavigationView navigationView;
@@ -65,7 +84,23 @@ public class MainActivity extends AppCompatActivity  {
     ArrayList<Picture> allPicturesList;
     ArrayList<DeskType> allDeskTypes;
     ArrayList<Address> allAddresses;
+    ArrayList<String> citySpinnerList, deskSpinnerList;
+    Set<String>  removeDuplicates;
+    Spinner citySpinner, deskTypeSpinner;
+    ArrayAdapter citySpinnerAdapter, deskSpinnerAdapter;
+    SeekBar desksAvailableSeekBar, deskPriceSeekBar;
+    TextView currentDesksAvailableValue, currentDeskPriceValue;
 
+    //SearchItemsResults
+    String deskTypeSelected, citySelected;
+    int deskNumberSelected, deskPriceSelected;
+    ArrayList<Listing> finalFilteredList;
+
+    //Map Params
+    SupportMapFragment mapFragment;
+    private GoogleMap mMap;
+    List<Marker> markers;
+    List<MarkerListing> markerListings;
 
 
     @Override
@@ -87,11 +122,119 @@ public class MainActivity extends AppCompatActivity  {
         allAddresses = new ArrayList<>();
         allAddresses.addAll(AddressSingleton.getInstance().getAddresses());
         allListingsListView = (ListView) findViewById(R.id.allListingsListView);
+        finalFilteredList = new ArrayList<>();
+        markers = new ArrayList<>();
+        markerListings = new ArrayList<>();
+
+
+        //Initialise and populate city spinner in search tab
+        citySpinnerList = new ArrayList<>();
+        String allCities = "All Cities";
+        citySpinnerList.add(allCities);
+        for(int i=0; i<AddressSingleton.getInstance().getAddresses().size(); i++) {
+            String city = AddressSingleton.getInstance().getAddresses().get(i).getAddressCity();
+            citySpinnerList.add(city);
+        }
+
+        removeDuplicates = new HashSet<>();
+        removeDuplicates.addAll(citySpinnerList);
+        citySpinnerList.clear();
+        citySpinnerList.addAll(removeDuplicates);
+
+        citySpinner = (Spinner) findViewById(R.id.spinnerCity);
+        citySpinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, citySpinnerList);
+        citySpinner.setAdapter(citySpinnerAdapter);
+
+        //Initialise and populate desk type spinner in search tab
+        deskSpinnerList = new ArrayList<>();
+        String all = "All Desk Types";
+        deskSpinnerList.add(all);
+        for(int i=0; i<DeskTypeSingleton.getInstance().getDeskTypes().size(); i++) {
+            int id = DeskTypeSingleton.getInstance().getDeskTypes().get(i).getDeskTypeID();
+            String deskType = DeskTypeSingleton.getInstance().getDeskTypes().get(i).getDeskType().toString();
+            deskSpinnerList.add(deskType);
+        }
+
+        deskTypeSpinner = (Spinner) findViewById(R.id.spinnerDeskType);
+        deskSpinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, deskSpinnerList);
+        deskTypeSpinner.setAdapter(deskSpinnerAdapter);
+
+        //Initialise and update SeekBars in Search
+        desksAvailableSeekBar = (SeekBar) findViewById(R.id.seekBarDesksAvailable);
+        desksAvailableSeekBar.setMax(9);
+        currentDesksAvailableValue = (TextView) findViewById(R.id.curentValueDesksAvailable);
+        desksAvailableSeekBar.setOnSeekBarChangeListener(new desksAvailableListener());
+
+        deskPriceSeekBar = (SeekBar) findViewById(R.id.seekBarDeskPrice);
+        deskPriceSeekBar.setMax(400);
+        currentDeskPriceValue = (TextView) findViewById(R.id.curentValueDeskPrice);
+        deskPriceSeekBar.setOnSeekBarChangeListener(new deskPriceListener());
+
+        //Initialise Search Button
+        final Button searchButton = (Button) findViewById(R.id.btnSearch);
+        final Button resetSearchButton = (Button) findViewById(R.id.btnResetSearch);
+
+        //Init Map
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.searchMap);
+        finalFilteredList.addAll(ListingsSingleton.getInstance().getListings());
+        callMap();
+
 
 
 
         //Initialising tabs
         setUpTabs();
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finalFilteredList.clear();
+                deskTypeSelected = deskTypeSpinner.getSelectedItem().toString();
+                if(!currentDesksAvailableValue.equals("10+")) {
+//                    deskNumberSelected = Integer.parseInt(currentDesksAvailableValue.getText().toString().trim());
+                    deskNumberSelected = (desksAvailableSeekBar.getProgress()+1);
+                } else deskNumberSelected = 11;
+                if(!currentDeskPriceValue.equals("500+")) {
+//                    deskPriceSelected = Integer.parseInt(currentDeskPriceValue.getText().toString().trim());
+                    deskPriceSelected = (deskPriceSeekBar.getProgress()+100);
+                } else deskPriceSelected = 501;
+                citySelected = citySpinner.getSelectedItem().toString();
+
+                Log.d("DEBUG", "Desk Type Selected is: "+deskTypeSelected);
+                Log.d("DEBUG", "City Selected is: "+citySelected);
+                Log.d("DEBUG", "Available Desks Selected is: "+ Integer.toString(deskNumberSelected));
+                Log.d("DEBUG", "Desk Price Selected is: "+ Integer.toString(deskPriceSelected));
+                
+                filterList(deskTypeSelected, deskNumberSelected, deskPriceSelected, citySelected);
+
+//                for(int i=0; i<finalFilteredList.size(); i++) {
+//                    Log.d("DEBUG", finalFilteredList.get(i).getListingTitle());
+//                }
+
+                Log.d("Filtered List Size: ", Integer.toString(finalFilteredList.size()));
+
+                mMap.clear();
+                callMap();
+
+
+
+                TabHost host = (TabHost) findViewById(R.id.tabHost);
+                host.setCurrentTab(2);
+            }
+        });
+
+        resetSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finalFilteredList.clear();
+                mMap.clear();
+                finalFilteredList.addAll(ListingsSingleton.getInstance().getListings());
+                callMap();
+                desksAvailableSeekBar.setProgress(0);
+                deskPriceSeekBar.setProgress(0);
+
+            }
+        });
 
         //Initialising NavigationView
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
@@ -211,10 +354,71 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
+    private void filterList(String deskTypeSelected, int deskNumberSelected, int deskPriceSelected, String citySelected) {
+        ArrayList<Listing> allListings = new ArrayList<>();
+        allListings.addAll(ListingsSingleton.getInstance().getListings());
+        ArrayList<Listing> filterListing = new ArrayList<>();
+
+        Log.d("DEBUG", "Desk Type Selected is: "+deskTypeSelected);
+        Log.d("DEBUG", "City Selected is: "+citySelected);
+        Log.d("DEBUG", "Available Desks Selected is: "+ Integer.toString(deskNumberSelected));
+        Log.d("DEBUG", "Desk Price Selected is: " + Integer.toString(deskPriceSelected));
+
+        Log.d("A AllListing: ", Integer.toString(allListings.size()));
+
+
+        for(int i=0; i<allListings.size(); i++) {
+            if(allListings.get(i).getListingPrice() <= deskPriceSelected &&  allListings.get(i).getDesksAvailable() >= deskNumberSelected) {
+                filterListing.add(allListings.get(i));
+            }
+        }
+
+
+
+        Log.d("A FilterListing: ", Integer.toString(filterListing.size()));
+
+        allListings.clear();
+        allListings.addAll(filterListing);
+        filterListing.clear();
+
+        Log.d("B AllListing: ", Integer.toString(allListings.size()));
+
+        if(!deskTypeSelected.equalsIgnoreCase("All Desk Types")) {
+            for(int i=0; i<allListings.size(); i++) {
+                if(deskTypeSelected.equalsIgnoreCase(getDeskType(allListings.get(i).getDeskTypeID()))) {
+                    filterListing.add(allListings.get(i));
+                }
+            }
+
+            allListings.clear();
+            allListings.addAll(filterListing);
+            filterListing.clear();
+        }
+
+        Log.d("C AllListing: ", Integer.toString(allListings.size()));
+
+        if(!citySelected.equalsIgnoreCase("All Cities")) {
+            for(int i=0; i<allListings.size(); i++) {
+                if(citySelected.equalsIgnoreCase(getCity(allListings.get(i).getListingID()))) {
+                    filterListing.add(allListings.get(i));
+                }
+            }
+            allListings.clear();
+            allListings.addAll(filterListing);
+            filterListing.clear();
+        }
+
+        finalFilteredList.clear();
+//        callMap();
+        finalFilteredList.addAll(allListings);
+    }
+
     private void populateAlListingsList() {
         allListingAdapter = new AllListingsListAdapter();
         allListingsListView.setAdapter(allListingAdapter);
     }
+
+
 
     private class AllListingsListAdapter extends ArrayAdapter<Listing> {
         public AllListingsListAdapter() {
@@ -291,11 +495,11 @@ public class MainActivity extends AppCompatActivity  {
         spec.setIndicator("", getResources().getDrawable(R.drawable.ic_place_white_24dp));
         host.addTab(spec);
 
-        //Tab 4
-        spec = host.newTabSpec("Messages");
-        spec.setContent(R.id.tab4);
-        spec.setIndicator("", getResources().getDrawable(R.drawable.ic_mail_outline_white_24dp));
-        host.addTab(spec);
+//        //Tab 4
+//        spec = host.newTabSpec("Messages");
+//        spec.setContent(R.id.tab4);
+//        spec.setIndicator("", getResources().getDrawable(R.drawable.ic_mail_outline_white_24dp));
+//        host.addTab(spec);
 
     }
 
@@ -356,6 +560,175 @@ public class MainActivity extends AppCompatActivity  {
         }
         return officeType;
     }
+
+    private class deskPriceListener implements SeekBar.OnSeekBarChangeListener {
+
+        public void onProgressChanged(SeekBar seekBar, int progress,
+                                      boolean fromUser) {
+            // Log the progress
+            Log.d("DEBUG", "Progress is: "+progress);
+            //set textView's text
+//            currentDesksAvailableValue.setText(""+progress);
+            if(progress < 400) {
+                currentDeskPriceValue.setText("€"+(progress+100));
+            } else currentDeskPriceValue.setText("€500+");
+        }
+
+        public void onStartTrackingTouch(SeekBar seekBar) {}
+
+        public void onStopTrackingTouch(SeekBar seekBar) {}
+
+    }
+
+    private class desksAvailableListener implements SeekBar.OnSeekBarChangeListener {
+
+        public void onProgressChanged(SeekBar seekBar, int progress,
+                                      boolean fromUser) {
+            // Log the progress
+            Log.d("DEBUG", "Progress is: "+progress);
+            //set textView's text
+            if(progress < 9) {
+                currentDesksAvailableValue.setText(""+(progress+1));
+            } else currentDesksAvailableValue.setText("10+");
+
+        }
+
+        public void onStartTrackingTouch(SeekBar seekBar) {}
+
+        public void onStopTrackingTouch(SeekBar seekBar) {}
+
+    }
+
+    private void callMap() {
+        mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        if(markerListings != null) {
+            markerListings.clear();
+        }
+        if(markers != null) {
+            markers.clear();
+        }
+
+
+        mMap = googleMap;
+
+
+        LatLng ireland = new LatLng(53.344104, -6.2674937);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ireland, 14));
+
+        Geocoder gc = new Geocoder(this);
+        List<android.location.Address> list = null;
+        for (int i = 0; i < finalFilteredList.size(); i++) {
+            String address = getAddressString(finalFilteredList.get(i).getListingID());
+            try {
+                list = gc.getFromLocationName(address, 1);
+                android.location.Address add = list.get(0);
+                double lat = add.getLatitude();
+                double lng = add.getLongitude();
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(lat, lng))
+                        .title(this.finalFilteredList.get(i).getListingTitle().toString())
+                        .snippet("Price: €" + Integer.toString(this.finalFilteredList.get(i).getListingPrice())
+                                + "\n" + "Desks Available: " + Integer.toString(this.finalFilteredList.get(i).getDesksAvailable())
+                                + "\n" + "Desk Type: " + getDeskType(this.finalFilteredList.get(i).getDeskTypeID())));
+
+                MarkerListing ml = new MarkerListing(marker.getId(), finalFilteredList.get(i).getListingID());
+                markerListings.add(ml);
+                markers.add(marker);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                Marker lastClicked;
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    if (lastClicked != null && lastClicked.equals(marker)) {
+                        lastClicked = null;
+                        marker.hideInfoWindow();
+                        return true;
+                    } else {
+                        lastClicked = marker;
+                        return false;
+                    }
+                }
+            });
+
+            mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+                @Override
+                public View getInfoWindow(Marker arg0) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+
+                    LinearLayout info = new LinearLayout(getApplicationContext());
+                    info.setOrientation(LinearLayout.VERTICAL);
+
+                    TextView title = new TextView(getApplicationContext());
+                    title.setTextColor(Color.BLACK);
+                    title.setGravity(Gravity.CENTER);
+                    title.setTypeface(null, Typeface.BOLD);
+                    title.setText(marker.getTitle());
+
+                    TextView snippet = new TextView(getApplicationContext());
+                    snippet.setTextColor(Color.GRAY);
+                    snippet.setText(marker.getSnippet());
+
+                    info.addView(title);
+                    info.addView(snippet);
+
+                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                        @Override
+                        public void onInfoWindowClick(Marker marker) {
+                            Intent n = new Intent(MainActivity.this, DetailedListing.class);
+                            int listingID = -1;
+                            for (int i = 0; i < markerListings.size(); i++) {
+                                if (marker.getId().equalsIgnoreCase(markerListings.get(i).getMarkerID())) {
+                                    listingID = markerListings.get(i).getListingID();
+                                }
+                            }
+                            n.putExtra("Listing ID", listingID);
+                            if (listingID != -1) {
+                                startActivity(n);
+                            }
+
+                        }
+                    });
+
+                    return info;
+                }
+            });
+
+
+        }
+
+    }
+
+    private String getAddressString(int listingID) {
+        String address = null;
+
+        for(int i=0; i<allAddresses.size(); i++) {
+            if(listingID == allAddresses.get(i).getAddressListingID()) {
+                String street1 = allAddresses.get(i).getAddressStreet1();
+                String street2 = allAddresses.get(i).getAddressStreet2();
+                String city = allAddresses.get(i).getAddressCity();
+                String county = allAddresses.get(i).getAddressCounty();
+                String country = allAddresses.get(i).getAddressCountry();
+
+                address = (street1 + ", " + street2 + ", " + city + ", " + county + ", " + country);
+            }
+        }
+
+        return address;
+    }
+
 
 }
 

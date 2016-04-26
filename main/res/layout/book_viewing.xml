@@ -18,12 +18,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"></finalyear.officeme.CustomDatePicker>
 
-        <!--<DatePicker-->
-            <!--android:id="@+id/datePicker1"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" >-->
-        <!--</DatePicker>-->
-
         <finalyear.officeme.CustomTimePicker
             android:id="@+id/timePicker1"
             android:layout_width="wrap_content"
