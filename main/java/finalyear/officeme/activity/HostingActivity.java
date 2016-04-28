@@ -25,6 +25,8 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -202,15 +204,18 @@ public class HostingActivity extends AppCompatActivity implements View.OnClickLi
             TextView myListingDesksAvailable = (TextView) view.findViewById(R.id.listImgDesksAvailable);
             myListingDesksAvailable.setText(Integer.toString(currentListing.getDesksAvailable()) + " Desks Available");
 
-            //GetMainImage
-            Bitmap bitmap = getImage(currentListing.getListingID());
+//            //GetMainImage
+//            Bitmap bitmap = getImage(currentListing.getListingID());
+//            ImageView myListingsImageView = (ImageView) view.findViewById(R.id.listImgImgMain);
+//            myListingsImageView.setImageBitmap(bitmap);
+//            String bitmapcase;
+//            if(bitmap == null) {
+//                bitmapcase = "bitmap null";
+//            } else bitmapcase = "bitmap not null";
+//            Log.d("Is bitmap null?", bitmapcase);
+            String url = "http://www.johnrockfinalyearproject.com/images/listingimage" + Integer.toString(currentListing.getListingID()) + "1";
             ImageView myListingsImageView = (ImageView) view.findViewById(R.id.listImgImgMain);
-            myListingsImageView.setImageBitmap(bitmap);
-            String bitmapcase;
-            if(bitmap == null) {
-                bitmapcase = "bitmap null";
-            } else bitmapcase = "bitmap not null";
-            Log.d("Is bitmap null?", bitmapcase);
+            UrlImageViewHelper.setUrlDrawable(myListingsImageView, url);
 
             String office = getDeskType(currentListing.getDeskTypeID());
             TextView myListingOfficeType = (TextView) view.findViewById(R.id.listImgOfficeType);
@@ -331,6 +336,20 @@ public class HostingActivity extends AppCompatActivity implements View.OnClickLi
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.appbar, menu);
         return true;
+    }
+
+    @Override
+    public void onResume() {  // After a pause OR at startup
+        super.onResume();
+//        PopulateFavourites pf = new PopulateFavourites();
+//        pf.delegate = this;
+//        pf.execute();
+//        if(favouriteListingAdapter !=null)
+//            favouriteListingAdapter.notifyDataSetChanged();
+//        allListingsListView.setAdapter(new CustomListAdapter(this, allListingsList));
+
+        populateMyListingsList();
+
     }
 
 }

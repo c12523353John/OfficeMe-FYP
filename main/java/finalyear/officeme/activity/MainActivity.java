@@ -3,19 +3,25 @@ package finalyear.officeme.activity;
 
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,13 +48,24 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import finalyear.officeme.DatabaseHandler.Config;
+import finalyear.officeme.DatabaseHandler.RequestHandler;
 import finalyear.officeme.Login;
 import finalyear.officeme.MarkerListing;
 import finalyear.officeme.R;
@@ -57,6 +75,7 @@ import finalyear.officeme.Singletons.ListingsSingleton;
 import finalyear.officeme.Singletons.LoggedIn;
 import finalyear.officeme.Singletons.LoggedInUserDetails;
 import finalyear.officeme.Singletons.PicturesSingleton;
+import finalyear.officeme.Singletons.UserID;
 import finalyear.officeme.model.Address;
 import finalyear.officeme.model.DeskType;
 import finalyear.officeme.model.Favourite;
@@ -90,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayAdapter citySpinnerAdapter, deskSpinnerAdapter;
     SeekBar desksAvailableSeekBar, deskPriceSeekBar;
     TextView currentDesksAvailableValue, currentDeskPriceValue;
+    Bitmap currentImage;
 
     //SearchItemsResults
     String deskTypeSelected, citySelected;
@@ -112,9 +132,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         actionBarSettings(myToolbar);
 
-        //PopulateLists
-        allListingsList = new ArrayList<>();
-        allListingsList.addAll(ListingsSingleton.getInstance().getListings());
+
+        addListings();
+
         allPicturesList = new ArrayList<>();
         allPicturesList.addAll(PicturesSingleton.getInstance().getPictures());
         allDeskTypes = new ArrayList<>();
@@ -122,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         allAddresses = new ArrayList<>();
         allAddresses.addAll(AddressSingleton.getInstance().getAddresses());
         allListingsListView = (ListView) findViewById(R.id.allListingsListView);
+        allListingsListView.setAdapter(new CustomListAdapter(this, allListingsList));
         finalFilteredList = new ArrayList<>();
         markers = new ArrayList<>();
         markerListings = new ArrayList<>();
@@ -339,8 +360,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Initialising drawer layout
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
 
-        populateAlListingsList();
-
+//        populateAlListingsList();
+//
         allListingsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -351,6 +372,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+
+    }
+
+    private void addListings() {
+        //PopulateLists
+        ArrayList<Listing> completeListings = new ArrayList<>();
+        allListingsList = new ArrayList<>();
+        completeListings.clear();
+        completeListings.addAll(ListingsSingleton.getInstance().getListings());
+        if(LoggedIn.getInstance().getLoggedIn() == true) {
+            for(int i=0; i<completeListings.size(); i++) {
+                if(UserID.getInstance().getLoggedInId() != completeListings.get(i).getListingUserID()) {
+                    allListingsList.add(completeListings.get(i));
+                }
+            }
+        }
+
+        if(LoggedIn.getInstance().getLoggedIn() == false) {
+            allListingsList.addAll(completeListings);
+        }
 
     }
 
@@ -413,57 +454,136 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         finalFilteredList.addAll(allListings);
     }
 
-    private void populateAlListingsList() {
-        allListingAdapter = new AllListingsListAdapter();
-        allListingsListView.setAdapter(allListingAdapter);
-    }
+//    private void populateAlListingsList() {
+//        allListingAdapter = new AllListingsListAdapter();
+//        allListingsListView.setAdapter(allListingAdapter);
+//    }
 
 
 
-    private class AllListingsListAdapter extends ArrayAdapter<Listing> {
-        public AllListingsListAdapter() {
-            super(MainActivity.this, R.layout.listview_listings, allListingsList);
+//    private class AllListingsListAdapter extends ArrayAdapter<Listing> {
+//        public AllListingsListAdapter() {
+//            super(MainActivity.this, R.layout.listview_listings, allListingsList);
+//        }
+//
+//        @Override
+//        public View getView(int position, View view, ViewGroup parent) {
+//            RecyclerView.ViewHolder holder;
+//            if(view == null)
+//                view = getLayoutInflater().inflate(R.layout.listview_listings, parent, false);
+//
+//            Listing currentListing= allListingsList.get(position);
+//
+//            TextView myListingListingPrice = (TextView) view.findViewById(R.id.listImgPrice);
+//            myListingListingPrice.setText("€" + Integer.toString(currentListing.getListingPrice()) + " Per Desk Per Month");
+//            TextView myListingListingTitle = (TextView) view.findViewById(R.id.listImgTitle);
+//            myListingListingTitle.setText(currentListing.getListingTitle());
+//            TextView myListingDesksAvailable = (TextView) view.findViewById(R.id.listImgDesksAvailable);
+//            myListingDesksAvailable.setText(Integer.toString(currentListing.getDesksAvailable()) + " Desks Available");
+//
+//
+//
+//
+//            //GetMainImage
+////            Bitmap bitmap = getImage(currentListing.getListingID());
+////            getImage(currentListing.getListingID());
+////            Bitmap bitmap = currentImage;
+////            ImageView myListingsImageView = (ImageView) view.findViewById(R.id.listImgImgMain);
+////            myListingsImageView.setImageBitmap(bitmap);
+////            String bitmapcase;
+////            if(bitmap == null) {
+////                bitmapcase = "bitmap null";
+////            } else bitmapcase = "bitmap not null";
+////            Log.d("Is bitmap null?", bitmapcase);
+//
+//            ImageView myListingsImageView = (ImageView) view.findViewById(R.id.listImgImgMain);
+//            if(myListingsImageView !=null) {
+//                new PopulateImage(myListingsImageView).execute(Integer.toString(currentListing.getListingID()));
+//            }
+//
+//
+//            String office = getDeskType(currentListing.getDeskTypeID());
+//            TextView myListingOfficeType = (TextView) view.findViewById(R.id.listImgOfficeType);
+//            myListingOfficeType.setText(office);
+//
+//            String city = getCity(currentListing.getListingID());
+//            TextView myListingCity = (TextView) view.findViewById(R.id.listImgCity);
+//            myListingCity.setText(city);
+//
+//
+//            return view;
+//        }
+//    }
+
+    public class CustomListAdapter extends BaseAdapter {
+        private ArrayList listData;
+        private LayoutInflater layoutInflater;
+
+        public CustomListAdapter(Context context, ArrayList listData) {
+            this.listData = listData;
+            layoutInflater = LayoutInflater.from(context);
         }
 
         @Override
-        public View getView(int position, View view, ViewGroup parent) {
-            if(view == null)
-                view = getLayoutInflater().inflate(R.layout.listview_listings, parent, false);
-
-            Listing currentListing= allListingsList.get(position);
-
-            TextView myListingListingPrice = (TextView) view.findViewById(R.id.listImgPrice);
-            myListingListingPrice.setText("€" + Integer.toString(currentListing.getListingPrice()) + " Per Desk Per Month");
-            TextView myListingListingTitle = (TextView) view.findViewById(R.id.listImgTitle);
-            myListingListingTitle.setText(currentListing.getListingTitle());
-            TextView myListingDesksAvailable = (TextView) view.findViewById(R.id.listImgDesksAvailable);
-            myListingDesksAvailable.setText(Integer.toString(currentListing.getDesksAvailable()) + " Desks Available");
-
-
-
-
-            //GetMainImage
-            Bitmap bitmap = getImage(currentListing.getListingID());
-            ImageView myListingsImageView = (ImageView) view.findViewById(R.id.listImgImgMain);
-            myListingsImageView.setImageBitmap(bitmap);
-            String bitmapcase;
-            if(bitmap == null) {
-                bitmapcase = "bitmap null";
-            } else bitmapcase = "bitmap not null";
-            Log.d("Is bitmap null?", bitmapcase);
-
-            String office = getDeskType(currentListing.getDeskTypeID());
-            TextView myListingOfficeType = (TextView) view.findViewById(R.id.listImgOfficeType);
-            myListingOfficeType.setText(office);
-
-            String city = getCity(currentListing.getListingID());
-            TextView myListingCity = (TextView) view.findViewById(R.id.listImgCity);
-            myListingCity.setText(city);
-
-
-            return view;
+        public int getCount() {
+            return listData.size();
         }
+
+        @Override
+        public Object getItem(int position) {
+            return listData.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder;
+            if (convertView == null) {
+                convertView = layoutInflater.inflate(R.layout.listview_listings, null);
+                holder = new ViewHolder();
+                holder.myListingListingPrice = (TextView) convertView.findViewById(R.id.listImgPrice);
+                holder.myListingListingTitle = (TextView) convertView.findViewById(R.id.listImgTitle);
+                holder.myListingDesksAvailable = (TextView) convertView.findViewById(R.id.listImgDesksAvailable);
+                holder.myListingsImageView = (ImageView) convertView.findViewById(R.id.listImgImgMain);
+                holder.myListingOfficeType = (TextView) convertView.findViewById(R.id.listImgOfficeType);
+                holder.myListingCity = (TextView) convertView.findViewById(R.id.listImgCity);
+
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            Listing currentListing = (Listing) listData.get(position);
+            holder.myListingListingPrice.setText("€" + Integer.toString(currentListing.getListingPrice()) + " Per Desk Per Month");
+            holder.myListingListingTitle.setText(currentListing.getListingTitle());
+            holder.myListingDesksAvailable.setText(Integer.toString(currentListing.getDesksAvailable()) + " Desks Available");
+            holder.myListingOfficeType.setText(getDeskType(currentListing.getDeskTypeID()));
+            holder.myListingCity.setText(getCity(currentListing.getListingID()));
+            String url = "http://www.johnrockfinalyearproject.com/images/listingimage" + Integer.toString(currentListing.getListingID()) + "1";
+            UrlImageViewHelper.setUrlDrawable(holder.myListingsImageView, url);
+
+
+            return convertView;
+        }
+
+
+
     }
+
+    static class ViewHolder {
+        TextView myListingListingPrice;
+        TextView myListingListingTitle;
+        TextView myListingDesksAvailable;
+        TextView myListingOfficeType;
+        TextView myListingCity;
+        ImageView myListingsImageView;
+    }
+
+
 
 
     private void actionBarSettings(Toolbar myToolbar) {
@@ -494,12 +614,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         spec.setContent(R.id.tab3);
         spec.setIndicator("", getResources().getDrawable(R.drawable.ic_place_white_24dp));
         host.addTab(spec);
-
-//        //Tab 4
-//        spec = host.newTabSpec("Messages");
-//        spec.setContent(R.id.tab4);
-//        spec.setIndicator("", getResources().getDrawable(R.drawable.ic_mail_outline_white_24dp));
-//        host.addTab(spec);
 
     }
 
@@ -538,17 +652,68 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private Bitmap getImage(int listingID) {
-        Log.d("ListingID", Integer.toString(listingID));
-        Bitmap currentImage = null;
-        for(int i=0; i<allPicturesList.size(); i++) {
-            if(allPicturesList.get(i).getPictureListingID() == listingID) {
-                currentImage = allPicturesList.get(i).getListingImage();
-                break;
-            }
-        }
-        return currentImage;
-    }
+
+//        class PopulateImage extends AsyncTask<String, Void, Bitmap> {
+//            private final WeakReference<ImageView> imageViewReference;
+//
+//            public PopulateImage(ImageView imageView) {
+//                imageViewReference = new WeakReference<ImageView>(imageView);
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Bitmap bitmap) {
+//                if (isCancelled()) {
+//                    bitmap = null;
+//                }
+//
+////                if (imageViewReference != null) {
+////                    ImageView imageView = imageViewReference.get();
+////                    if (imageView != null) {
+////                        if (bitmap != null) {
+////                            imageView.setImageBitmap(bitmap);
+////                        } else {
+////                            Drawable placeholder = imageView.getContext().getResources().getDrawable(R.drawable.nopicture2);
+////                            imageView.setImageDrawable(placeholder);
+////                        }
+////                    }
+////                }
+//                ImageView imageView = imageViewReference.get();
+//                imageView.setImageBitmap(bitmap);
+//            }
+//
+//
+//            @Override
+//            protected Bitmap doInBackground(String... params) {
+//                return getBitmapFromURL(params[0]);
+//            }
+//        }
+
+
+
+//    @Override
+//    public void populateImages(ArrayList a) {
+//        ArrayList<Picture> picList = new ArrayList<>();
+//        picList.addAll(a);
+//        currentImage = picList.get(0).getListingImage();
+//
+//    }
+
+
+//    public static Bitmap getBitmapFromURL(String src) {
+//        try {
+//            URL url = new URL(src);
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//            connection.setDoInput(true);
+//            connection.connect();
+//            InputStream input = connection.getInputStream();
+//            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+//            return myBitmap;
+//        } catch (IOException e) {
+//            // Log exception
+//            return null;
+//        }
+//    }
+
 
     private String getDeskType(int deskTypeID) {
         String officeType = null;
@@ -727,6 +892,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         return address;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(MainActivity.this, MainActivity.class);
+        startActivity(setIntent);
+    }
+
+    @Override
+    public void onResume() {  // After a pause OR at startup
+        super.onResume();
+//        PopulateFavourites pf = new PopulateFavourites();
+//        pf.delegate = this;
+//        pf.execute();
+//        if(favouriteListingAdapter !=null)
+//            favouriteListingAdapter.notifyDataSetChanged();
+        addListings();
+        allListingsListView.setAdapter(new CustomListAdapter(this, allListingsList));
+
+
     }
 
 

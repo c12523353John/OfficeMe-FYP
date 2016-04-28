@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -99,7 +101,6 @@ public class Favourites extends AppCompatActivity implements UpdateFavouritesLis
     public void notifyListChange() {
         fillFavouriteListings();
         populateFavouriteListingsList();
-        Log.d("Gets to Here", "");
     }
 
     private class FavouriteListingsListAdapter extends ArrayAdapter<Listing> {
@@ -121,15 +122,18 @@ public class Favourites extends AppCompatActivity implements UpdateFavouritesLis
             TextView myListingDesksAvailable = (TextView) view.findViewById(R.id.listImgDesksAvailable);
             myListingDesksAvailable.setText(Integer.toString(currentListing.getDesksAvailable()) + " Desks Available");
 
-            //GetMainImage
-            Bitmap bitmap = getImage(currentListing.getListingID());
+//            //GetMainImage
+//            Bitmap bitmap = getImage(currentListing.getListingID());
+//            ImageView myListingsImageView = (ImageView) view.findViewById(R.id.listImgImgMain);
+//            myListingsImageView.setImageBitmap(bitmap);
+//            String bitmapcase;
+//            if(bitmap == null) {
+//                bitmapcase = "bitmap null";
+//            } else bitmapcase = "bitmap not null";
+//            Log.d("Is bitmap null?", bitmapcase);
+            String url = "http://www.johnrockfinalyearproject.com/images/listingimage" + Integer.toString(currentListing.getListingID()) + "1";
             ImageView myListingsImageView = (ImageView) view.findViewById(R.id.listImgImgMain);
-            myListingsImageView.setImageBitmap(bitmap);
-            String bitmapcase;
-            if(bitmap == null) {
-                bitmapcase = "bitmap null";
-            } else bitmapcase = "bitmap not null";
-            Log.d("Is bitmap null?", bitmapcase);
+            UrlImageViewHelper.setUrlDrawable(myListingsImageView, url);
 
             String office = getDeskType(currentListing.getDeskTypeID());
             TextView myListingOfficeType = (TextView) view.findViewById(R.id.listImgOfficeType);
@@ -155,7 +159,7 @@ public class Favourites extends AppCompatActivity implements UpdateFavouritesLis
                     int userID = allListingsList.get(i).getListingUserID();
                     int deskTypeID = allListingsList.get(i).getDeskTypeID();
                     int desksAvailable = allListingsList.get(i).getDesksAvailable();
-                    int listingPrice = allListingsList.get(i).getDesksAvailable();
+                    int listingPrice = allListingsList.get(i).getListingPrice();
                     String listingTitle = allListingsList.get(i).getListingTitle();
                     String listingDescription = allListingsList.get(i).getListingDescription();
 
@@ -255,5 +259,17 @@ public class Favourites extends AppCompatActivity implements UpdateFavouritesLis
             }
         }
         return city;
+    }
+
+    @Override
+    public void onResume() {  // After a pause OR at startup
+        super.onResume();
+        PopulateFavourites pf = new PopulateFavourites();
+        pf.delegate = this;
+        pf.execute();
+        if(favouriteListingAdapter !=null)
+            favouriteListingAdapter.notifyDataSetChanged();
+
+
     }
 }

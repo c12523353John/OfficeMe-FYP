@@ -86,4 +86,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             Toast.makeText(getApplicationContext(), "User not found", Toast.LENGTH_SHORT).show();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(Login.this, MainActivity.class);
+        startActivity(setIntent);
+    }
 }

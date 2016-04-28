@@ -392,4 +392,10 @@ public class ViewingInformation extends AppCompatActivity implements FillBooking
 //        return title;
 //    }
 
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(ViewingInformation.this, MainActivity.class);
+        startActivity(setIntent);
+    }
+
 }

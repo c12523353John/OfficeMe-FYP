@@ -38,8 +38,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +72,7 @@ import finalyear.officeme.model.Favourite;
 import finalyear.officeme.model.Listing;
 import finalyear.officeme.model.Picture;
 
-public class DetailedListing extends AppCompatActivity implements OnMapReadyCallback, SetFavouriteAsync {
+public class DetailedListing extends AppCompatActivity implements OnMapReadyCallback, SetFavouriteAsync, PopulateImagesAsync {
 
     private GoogleMap mMap;
     ImageView mainImg, img2, img3, img4, img5;
@@ -81,6 +89,8 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
     String mapPrice;
     Boolean isFavourite = false;
     CheckIfFavourite cf = new CheckIfFavourite();
+    String ALL_PICTURES_JSON_STRING;
+    PopulateImages pI = new PopulateImages();
 
 
     @Override
@@ -99,6 +109,9 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
 
         cf.delegate = this;
         cf.execute();
+//        pI.imagesDelegate = this;
+//        pI.execute();
+        fillImages();
 
 
         allListingsList = new ArrayList<>();
@@ -115,7 +128,7 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
         getListingInfo();
         setListingInfo();
         setDeskInfo();
-        setImages();
+//        setImages();
         addressString = getAddressString();
         callMap();
         if (isFavourite == true) {
@@ -188,6 +201,7 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
                             Log.d("BookingRequestSize: ", Integer.toString(bReqs.size()));
                             Log.d("Booking Details:", " Day: " + Integer.toString(day) + " Month: " + Integer.toString(month) + " Year: " + Integer.toString(year)
                                     + " Hour: " + Integer.toString(hour) + " Minute: " + Integer.toString(minute) + " UserID: " + Integer.toString(UserID.getInstance().getLoggedInId()) + " Listing ID: " + Integer.toString(listing.getListingID()));
+                            dialog.dismiss();
 
                         }
                     });
@@ -331,53 +345,53 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
         return address;
     }
 
-    private void setImages() {
-        for(int i=0; i<allPictures.size(); i++) {
-            if(getListingID() == allPictures.get(i).getPictureListingID()) {
-                Bitmap bitmap = allPictures.get(i).getListingImage();
-
-                listingImages.add(bitmap);
-            }
-        }
-
-        ImageView mainImg = (ImageView) findViewById(R.id.scrollViewMainImg);
-        ImageView img2 = (ImageView) findViewById(R.id.scrollViewImg2);
-        ImageView img3 = (ImageView) findViewById(R.id.scrollViewImg3);
-        ImageView img4 = (ImageView) findViewById(R.id.scrollViewImg4);
-        ImageView img5 = (ImageView) findViewById(R.id.scrollViewImg5);
-
-        if(listingImages.size() > 0) {
-
-            int count = 0;
-
-            if(count < listingImages.size()) {
-                Bitmap b = listingImages.get(count);
-                mainImg.setImageBitmap(b);
-            }
-
-            if(count+1 < listingImages.size()) {
-                Bitmap b = listingImages.get(count+1);
-                img2.setImageBitmap(b);
-            }
-
-            if(count+2 < listingImages.size()) {
-                Bitmap b = listingImages.get(count+2);
-                img3.setImageBitmap(b);
-            } else img3.setVisibility(View.GONE);
-
-            if(count+3 < listingImages.size()) {
-                Bitmap b = listingImages.get(count+3);
-                img4.setImageBitmap(b);
-            }
-
-            if(count+4 < listingImages.size()) {
-                Bitmap b = listingImages.get(count+4);
-                img5.setImageBitmap(b);
-                count++;
-            }
-
-        }
-    }
+//    private void setImages() {
+//        for(int i=0; i<picturesList.size(); i++) {
+//            if(getListingID() == picturesList.get(i).getPictureListingID()) {
+//                Bitmap bitmap = picturesList.get(i).getListingImage();
+//
+//                listingImages.add(bitmap);
+//            }
+//        }
+//
+//        ImageView mainImg = (ImageView) findViewById(R.id.scrollViewMainImg);
+//        ImageView img2 = (ImageView) findViewById(R.id.scrollViewImg2);
+//        ImageView img3 = (ImageView) findViewById(R.id.scrollViewImg3);
+//        ImageView img4 = (ImageView) findViewById(R.id.scrollViewImg4);
+//        ImageView img5 = (ImageView) findViewById(R.id.scrollViewImg5);
+//
+//        if(listingImages.size() > 0) {
+//
+//            int count = 0;
+//
+//            if(count < listingImages.size()) {
+//                Bitmap b = listingImages.get(count);
+//                mainImg.setImageBitmap(b);
+//            }
+//
+//            if(count+1 < listingImages.size()) {
+//                Bitmap b = listingImages.get(count+1);
+//                img2.setImageBitmap(b);
+//            }
+//
+//            if(count+2 < listingImages.size()) {
+//                Bitmap b = listingImages.get(count+2);
+//                img3.setImageBitmap(b);
+//            } else img3.setVisibility(View.GONE);
+//
+//            if(count+3 < listingImages.size()) {
+//                Bitmap b = listingImages.get(count+3);
+//                img4.setImageBitmap(b);
+//            }
+//
+//            if(count+4 < listingImages.size()) {
+//                Bitmap b = listingImages.get(count+4);
+//                img5.setImageBitmap(b);
+//                count++;
+//            }
+//
+//        }
+//    }
 
 
     private void setDeskInfo() {
@@ -547,6 +561,8 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
     }
 
 
+
+
     class CheckIfFavourite extends AsyncTask<Void,Void,String> {
 
             ProgressDialog loading;
@@ -592,9 +608,184 @@ public class DetailedListing extends AppCompatActivity implements OnMapReadyCall
 
     }
 
+    private void addPicturesToList(String res) {
+//        JSONObject jsonObject = null;
+//
+//        if(!picturesList.isEmpty()) {
+//            picturesList.clear();
+//        }
+//
+//        try {
+//            jsonObject = new JSONObject(res);
+////            Log.d("Gets to", "A");
+//            JSONArray result = jsonObject.getJSONArray(Config.TAG_JSON_PICTURE_ARRAY);
+////            Log.d("Gets to", "B");
+//
+//            for(int i = 0; i<result.length(); i++){
+//                JSONObject jo = result.getJSONObject(i);
+//                int pictureID = Integer.parseInt(jo.getString(Config.TAG_PICTURE_ID));
+//                int listingID = Integer.parseInt(jo.getString(Config.TAG_PICTURE_LISTING_ID));
+//
+//                String listingImagePath = jo.getString(Config.TAG_PICTURE_LISTING_PATH);
+//                Log.d("listingImgPath", listingImagePath);
+//                Bitmap bitmap = getBitmapFromURL("http://www.johnrockfinalyearproject.com/" +listingImagePath);
+//                Log.d("Full Path", "http://www.johnrockfinalyearproject.com/" +listingImagePath);
+//
+//
+//                Picture picture = new Picture(pictureID, listingID, bitmap);
+//                picturesList.add(picture);
+//            }
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            // Log exception
+            return null;
+        }
+    }
+
+    class PopulateImages extends AsyncTask<Void,Void,ArrayList> {
+
+        public PopulateImagesAsync imagesDelegate = null;
+
+//            @Override
+//            protected void onPreExecute() {
+//                super.onPreExecute();
+//                loading = ProgressDialog.show(DetailedListing.this,"Checking...","Wait...",false,false);
+//            }
+
+        @Override
+        protected void onPostExecute(ArrayList a) {
+                super.onPostExecute(a);
+//                loading.dismiss();
+//                Toast.makeText(DetailedListing.this, s, Toast.LENGTH_LONG).show();
+            if(a !=null) {
+                imagesDelegate.populateImages(a);
+            }
+        }
+
+        @Override
+        protected ArrayList doInBackground(Void... v) {
+//            String complete = "Loading Complete";
+            RequestHandler rh = new RequestHandler();
+            ArrayList<Picture> picturesList = new ArrayList<>();
+//            String res = rh.sendGetRequest("http://johnrockfinalyearproject.com/checkFavourite.php?favouriteUserID=" + Integer.toString(UserID.getInstance().getLoggedInId()) + "&favouriteListingID="  + Integer.toString(getListingID()));
+//            return res;
+            String images = rh.sendGetRequest("http://www.johnrockfinalyearproject.com/getPicturesByListingID.php?listingID=" + Integer.toString(getListingID()));
+
+            JSONObject jsonObject = null;
+
+            if(!picturesList.isEmpty()) {
+                picturesList.clear();
+            }
+
+            try {
+                jsonObject = new JSONObject(images);
+//            Log.d("Gets to", "A");
+                JSONArray result = jsonObject.getJSONArray(Config.TAG_JSON_PICTURE_ARRAY);
+//            Log.d("Gets to", "B");
+
+                for(int i = 0; i<result.length(); i++){
+                    JSONObject jo = result.getJSONObject(i);
+                    int pictureID = Integer.parseInt(jo.getString(Config.TAG_PICTURE_ID));
+                    int listingID = Integer.parseInt(jo.getString(Config.TAG_PICTURE_LISTING_ID));
+
+                    String listingImagePath = jo.getString(Config.TAG_PICTURE_LISTING_PATH);
+                    Log.d("listingImgPath", listingImagePath);
+                    Bitmap bitmap = getBitmapFromURL("http://www.johnrockfinalyearproject.com/" +listingImagePath);
+                    Log.d("Full Path", "http://www.johnrockfinalyearproject.com/" +listingImagePath);
+
+
+                    Picture picture = new Picture(pictureID, listingID, bitmap);
+                    picturesList.add(picture);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return  picturesList;
+        }
+    }
+
     @Override
-    public void onBackPressed() {
-        Intent setIntent = new Intent(DetailedListing.this, MainActivity.class);
-        startActivity(setIntent);
+    public void populateImages(ArrayList a) {
+
+        ArrayList<Picture> pictureResults = new ArrayList<>();
+        pictureResults.addAll(a);
+
+        for(int i=0; i<a.size(); i++) {
+            if(getListingID() == pictureResults.get(i).getPictureListingID()) {
+                Bitmap bitmap = pictureResults.get(i).getListingImage();
+
+                listingImages.add(bitmap);
+            }
+        }
+
+        ImageView mainImg = (ImageView) findViewById(R.id.scrollViewMainImg);
+        ImageView img2 = (ImageView) findViewById(R.id.scrollViewImg2);
+        ImageView img3 = (ImageView) findViewById(R.id.scrollViewImg3);
+        ImageView img4 = (ImageView) findViewById(R.id.scrollViewImg4);
+        ImageView img5 = (ImageView) findViewById(R.id.scrollViewImg5);
+
+        if(listingImages.size() > 0) {
+
+            int count = 0;
+
+            if(count < listingImages.size()) {
+                Bitmap b = listingImages.get(count);
+                mainImg.setImageBitmap(b);
+            }
+
+            if(count+1 < listingImages.size()) {
+                Bitmap b = listingImages.get(count+1);
+                img2.setImageBitmap(b);
+            }
+
+            if(count+2 < listingImages.size()) {
+                Bitmap b = listingImages.get(count+2);
+                img3.setImageBitmap(b);
+            } else img3.setVisibility(View.GONE);
+
+            if(count+3 < listingImages.size()) {
+                Bitmap b = listingImages.get(count+3);
+                img4.setImageBitmap(b);
+            }
+
+            if(count+4 < listingImages.size()) {
+                Bitmap b = listingImages.get(count+4);
+                img5.setImageBitmap(b);
+                count++;
+            }
+
+        }
+    }
+
+    void fillImages() {
+
+        String url = "http://www.johnrockfinalyearproject.com/images/listingimage" + Integer.toString(getListingID());
+
+        ImageView mainImg = (ImageView) findViewById(R.id.scrollViewMainImg);
+        UrlImageViewHelper.setUrlDrawable(mainImg, url+"1");
+        ImageView img2 = (ImageView) findViewById(R.id.scrollViewImg2);
+        UrlImageViewHelper.setUrlDrawable(img2, url+"2");
+        ImageView img3 = (ImageView) findViewById(R.id.scrollViewImg3);
+        UrlImageViewHelper.setUrlDrawable(img3, url+"3");
+        ImageView img4 = (ImageView) findViewById(R.id.scrollViewImg4);
+        UrlImageViewHelper.setUrlDrawable(img4, url+"4");
+        ImageView img5 = (ImageView) findViewById(R.id.scrollViewImg5);
+        UrlImageViewHelper.setUrlDrawable(img5, url+"5");
+
     }
 }

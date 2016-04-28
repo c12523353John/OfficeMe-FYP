@@ -188,7 +188,7 @@ public class ListSpace extends AppCompatActivity {
             if(reqCode == 1) {
                 mainImgBitmap = getBitmap(data.getData());
                 listSpaceMainImage.setImageBitmap(mainImgBitmap);
-                mainImgString = encodeToBase64(mainImgBitmap, Bitmap.CompressFormat.JPEG, 100);
+                mainImgString = encodeToBase64(mainImgBitmap, Bitmap.CompressFormat.JPEG, 80);
                 Log.d("MIS", mainImgString);
 
             }
@@ -196,28 +196,28 @@ public class ListSpace extends AppCompatActivity {
             if(reqCode == 2) {
                 smallImg1Bitmap = getBitmap(data.getData());
                 listSpaceSmallImg1.setImageBitmap(smallImg1Bitmap);
-                smallImg1String = encodeToBase64(smallImg1Bitmap, Bitmap.CompressFormat.JPEG, 100);
+                smallImg1String = encodeToBase64(smallImg1Bitmap, Bitmap.CompressFormat.JPEG, 80);
                 Log.d("MIS", smallImg1String);
                 }
 
             if(reqCode == 3) {
                 smallImg2Bitmap = getBitmap(data.getData());
                 listSpaceSmallImg2.setImageBitmap(smallImg2Bitmap);
-                smallImg2String = encodeToBase64(smallImg2Bitmap, Bitmap.CompressFormat.JPEG, 100);
+                smallImg2String = encodeToBase64(smallImg2Bitmap, Bitmap.CompressFormat.JPEG, 80);
                 Log.d("MIS", smallImg2String);
             }
 
             if(reqCode == 4) {
                 smallImg3Bitmap = getBitmap(data.getData());
                 listSpaceSmallImg3.setImageBitmap(smallImg3Bitmap);
-                smallImg3String = encodeToBase64(smallImg3Bitmap, Bitmap.CompressFormat.JPEG, 100);
+                smallImg3String = encodeToBase64(smallImg3Bitmap, Bitmap.CompressFormat.JPEG, 80);
                 Log.d("MIS", smallImg3String);
             }
 
             if(reqCode == 5) {
                 smallImg4Bitmap = getBitmap(data.getData());
                 listSpaceSmallImg4.setImageBitmap(smallImg4Bitmap);
-                smallImg4String = encodeToBase64(smallImg4Bitmap, Bitmap.CompressFormat.JPEG, 100);
+                smallImg4String = encodeToBase64(smallImg4Bitmap, Bitmap.CompressFormat.JPEG, 80);
                 Log.d("MIS", smallImg4String);
             }
         }

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import finalyear.officeme.DatabaseHandler.Config;
 import finalyear.officeme.DatabaseHandler.RequestHandler;
 import finalyear.officeme.Singletons.UserList;
+import finalyear.officeme.activity.MainActivity;
 import finalyear.officeme.model.User;
 
 public class Register extends AppCompatActivity implements View.OnClickListener{
@@ -105,5 +106,11 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
 
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(Register.this, MainActivity.class);
+        startActivity(setIntent);
     }
 }
